@@ -28,4 +28,5 @@ export JD_CMD_HOME=$SETTING_DIR/jd-cmd/
 if [ -d $JD_CMD_HOME ];then
   export PATH=$PATH:$JD_CMD_HOME/bin
 fi
+alias javac='javac -J-Duser.language=en'
 EOF
