@@ -29,4 +29,7 @@ if [ -d $JD_CMD_HOME ];then
   export PATH=$PATH:$JD_CMD_HOME/bin
 fi
 alias javac='javac -J-Duser.language=en'
+
+source ~/Setting/bin/z.sh
+
 EOF
