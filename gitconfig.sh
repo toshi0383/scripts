@@ -19,7 +19,7 @@ git config --global alias.line 'log --no-merges --date=short --pretty=format:\\"
 git config --global alias.o 'checkout'
 git config --global alias.p 'pull'
 git config --global alias.pu '!git push origin `git rev-parse --abbrev-ref HEAD`'
-git config --global alias.nuke '!sh -c "git branch -d ${1} && git push origin --delete ${1}"'
+git config --global alias.nuke '!sh -c "git branch -D ${1} && git push origin --delete ${1}"'
 git config --global alias.pu-nuke '!sh -c "git pu && git nuke ${1}"'
 git config --global alias.puu 'push -u'
 git config --global alias.rp 'reset -p'
