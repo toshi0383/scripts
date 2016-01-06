@@ -1,0 +1,33 @@
+#!/bin/sh
+shopt -s nocasematch
+
+# Print branch names and last commit authors for branches in the origin remote
+# Authors specified are matched case insensitively
+# usage:
+# script-name
+# script-name 'author name'
+# script-name 'author name' 'other author'
+
+function print_name_match()
+{
+  name=$1; shift
+  for author in $*; do
+    if [[ $author =~ $name ]]; then
+      print_match $branch $name
+    fi
+  done
+}
+
+function print_match()
+{
+  echo $1 : $2
+}
+
+git branch -r | grep -v -- '->' | grep origin | while read branch; do
+  name=`git log --pretty=tformat:%an -1 $branch`
+  if [ $# -eq 0 ]; then
+    print_match $branch $name
+  else
+    print_name_match $name $*
+  fi
+done
