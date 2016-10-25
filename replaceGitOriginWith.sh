@@ -11,5 +11,5 @@ if [ $? -ne 0 ];then
 fi
 git remote remove origin
 git remote add origin $new
-git fetch -a
+git fetch --all --tag --prune
 git remote -v
