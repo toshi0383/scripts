@@ -10,6 +10,9 @@
 # license:
 #   MIT
 #
+# parameters:
+#   - 1 IPA_PATH: path to ipa
+#
 
 #!/bin/bash
 IPA_PATH=${1:?ipa path is missing}
@@ -22,13 +25,13 @@ tmppayload=`mktemp -d`
 
 cmsdecrypt='security cms -D -i'
 
-unzip ${IPA_PATH} Payload/**/*mobileprovision -d $tmppayload
+unzip "${IPA_PATH}" Payload/**/*mobileprovision -d $tmppayload > /dev/null
 
 find $tmppayload -name "*mobileprovision" > $tmp
 
 while read line;
 do
-    $cmsdecrypt $line
+    $cmsdecrypt $line 2> /dev/null
 done < $tmp
 rm $tmp
 rm -rf $tmppayload
