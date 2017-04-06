@@ -3,6 +3,7 @@ set -eo pipefail
 
 plbuddy='/usr/libexec/PlistBuddy'
 PROJ=${1:?}
+XCCONFIG_OUT_DIR=${2:-.}
 SED_FILE=$(cd $(dirname $0);pwd)/plbuddy-pretty.sed
 
 print() {
@@ -27,16 +28,15 @@ printBuildSettings() {
         configurationName=$(print objects:$configuration:name)
         buildSettings=$(print objects:$configuration:buildSettings)
         echo
-        echo "=== ${targetName}-${configurationName} ==="
-        echo $buildSettings | sed -f $SED_FILE
+        FILEPREFIX=${targetName}-${configurationName}
+        echo "=== ${FILEPREFIX} ==="
+        echo $buildSettings | sed -f $SED_FILE > $XCCONFIG_OUT_DIR/$FILEPREFIX.xcconfig
     done
 }
 
 ROOTOBJ=`$plbuddy -c 'Print rootObject' AbemaTV.xcodeproj/project.pbxproj`
 
-echo "###"
-echo "### Base ###"
-echo "###"
+echo "Base" 
 printBuildSettings $(print objects:$ROOTOBJ:buildConfigurationList) Base
 targets=$(print objects:$ROOTOBJ:targets)
 for target in $targets
@@ -51,9 +51,6 @@ do
         continue
     fi
     targetName=$(print objects:$target:name)
-    echo
-    echo "###"
-    echo "### ${targetName} (Native Target) ###"
-    echo "###"
+    echo "${targetName} (Native Target)"
     printBuildSettings $(print objects:$target:buildConfigurationList) $targetName
 done
