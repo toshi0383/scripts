@@ -1,6 +1,0 @@
-#!/bin/bash
-url=`curl -s "http://www.lgtm.in/g" -H"Accept:application/json"  | jq .actualImageUrl | sed -e "s/\"//g"`
-cat << EOF | pbcopy -
-![LGTM](${url})
-:+1: マージお願いします。
-EOF
