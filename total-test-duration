@@ -1,0 +1,3 @@
+#!/bin/bash
+grep seconds |  awk -F '[()]' '{print $2 " -> " $1}' | sort -rn | \
+    cut -d ' ' -f 1  | awk '{ sum += $1 } END { print sum }'
