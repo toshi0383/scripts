@@ -1,4 +1,28 @@
 #!/bin/bash
+#
+# name:
+#   release.sh
+#
+# description:
+#   Archive your SwiftPM executable.
+#   Created zip is intended to distributed via GitHub releases page and installed by using install.sh.
+#   Executable should be built with `-static-stdlib` option.
+#     e.g. `swift build -c release -Xswiftc -static-stdlib`
+#
+# parameters:
+#   1: executable name ... e.g. cmdshelf
+#   2..: required framework name[s] if needed ... e.g. libCYaml.dylib
+#
+# author:
+#   Toshihiro Suzuki
+#
+# since:
+#   2017-06-29
+#
+# copyright:
+#   Copyright © 2017 Toshihiro Suzuki All rights reserved.
+#
+
 APP_NAME=${1:?}
 shift
 RELEASE_DIR=.build/release
