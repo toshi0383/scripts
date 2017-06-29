@@ -9,8 +9,8 @@ for lib in $@
 do
 	install_name_tool -change "$(pwd)/.build/release/${lib}" "@rpath/${lib}" $EXECUTABLE
 	LIB=${RELEASE_DIR}/${lib}
-	mv $LIB usr/local/Frameworks/${APP_NAME}/
+	cp -R $LIB usr/local/Frameworks/${APP_NAME}/
 done
 mkdir -p usr/local/bin
-mv $EXECUTABLE usr/local/bin/
+cp $EXECUTABLE usr/local/bin/
 zip -r ${APP_NAME}.zip usr
