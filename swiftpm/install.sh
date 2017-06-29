@@ -18,5 +18,4 @@ curl -sLk $BINARY_URL -o ${ZIP_NAME}
 unzip ${ZIP_NAME}
 chmod +x usr/local/bin/$APP_NAME
 install_name_tool -add_rpath "@executable_path/../Frameworks/${APP_NAME}" "usr/local/bin/${APP_NAME}"
-install_name_tool -add_rpath "`xcode-select -p`/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx" "usr/local/bin/${APP_NAME}"
 cp -Rf usr /
