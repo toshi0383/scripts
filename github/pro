@@ -8,7 +8,6 @@ Usage:
 ${BASE_NAME} <base> <milestone> [<label>] [<assignee>]
 EOF
 )
-echo $@
 BASE_BRANCH=${1:?${USAGE}}
 MILESTONE=${2:?}
 LABEL=${3}
