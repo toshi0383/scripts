@@ -5,11 +5,11 @@ TOKEN=${GITHUB_ACCESS_TOKEN:?"GitHub Personal Access Token is required."}
 BASE_NAME=$(basename $0)
 USAGE=$(cat <<EOF
 Usage:
-${BASE_NAME} <base> <milestone> [<label>] [<assignee>]
+${BASE_NAME} <base> [<milestone>] [<label>] [<assignee>]
 EOF
 )
 BASE_BRANCH=${1:?${USAGE}}
-MILESTONE=${2:?}
+MILESTONE=${2}
 LABEL=${3}
 ASSIGNEE=${4}
 USER_REPO=$(git remote -v | head -1 | sed -n 's/.*:\(.*\)\.git.*/\1/p')
@@ -36,9 +36,11 @@ NUMBER=$(curl -sS -H "Authorization: token ${TOKEN}"\
     https://api.github.com/repos/${USER_REPO}/pulls \
     -d "${DATA}" | jq .number)
 # echo $NUMBER
-MILESTONE=$(curl -sS -H "Authorization: token ${TOKEN}"\
-    https://api.github.com/repos/${USER_REPO}/milestones \
-    | jq 'map(.number,.title)' | grep ${MILESTONE} -B1 | head -1 | sed -n 's/.*\([1-9]\)./\1/p')
+if [ $MILESTONE ];then
+    MILESTONE=$(curl -sS -H "Authorization: token ${TOKEN}"\
+        https://api.github.com/repos/${USER_REPO}/milestones \
+        | jq 'map(.number,.title)' | grep ${MILESTONE} -B1 | head -1 | sed -n 's/.*\([1-9]\)./\1/p')
+fi
 # echo $MILESTONE
 DATA=$(cat <<EOF
 { 
