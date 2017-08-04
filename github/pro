@@ -5,25 +5,39 @@ TOKEN=${GITHUB_ACCESS_TOKEN:?"GitHub Personal Access Token is required."}
 BASE_NAME=$(basename $0)
 USAGE=$(cat <<EOF
 Usage:
-${BASE_NAME} <base> [<milestone>] [<label>] [<assignee>]
+${BASE_NAME} [1] <base> [<milestone>] [<label>] [<title>] [<message>]
 EOF
 )
-BASE_BRANCH=${1:?${USAGE}}
-MILESTONE=${2}
-LABEL=${3}
-ASSIGNEE=${4}
+if [ $1 -eq 1 ];then
+    shift
+    BASE_BRANCH=${1:?${USAGE}}
+    MILESTONE=${2:?}
+    LABEL=${3:?}
+    TITLE=${4:?}
+    MESSAGE=${5:?}
+else
+    BASE_BRANCH=${1:?${USAGE}}
+    MILESTONE=${2}
+    LABEL=${3}
+    TITLE=${4}
+    MESSAGE=${5}
+fi
 USER_REPO=$(git remote -v | head -1 | sed -n 's/.*:\(.*\)\.git.*/\1/p')
 HEAD_BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
 echo Pushing current branch..
 git push origin $(git rev-parse --abbrev-ref HEAD)
-echo -n Enter Title:
-read line
-TITLE=$line
-echo Enter PR Body:
-while read line
-do
-    MESSAGE="${line}\n${MESSAGE}"
-done
+if [ ! "$TITLE" ];then
+    echo -n Enter Title:
+    read line
+    TITLE=$line
+fi
+if [ ! "$MESSAGE" ];then
+    echo Enter PR Body:
+    while read line
+    do
+        MESSAGE="${line}\n${MESSAGE}"
+    done
+fi
 echo Creating a new pull-request..
 DATA=$(cat <<EOF
 {
@@ -49,7 +63,6 @@ DATA=$(cat <<EOF
 { 
     "milestone": "${MILESTONE}",
     "labels": ["${LABEL}"],
-    "assignees": ["${ASSIGNEE}"]
 }
 EOF
 )
