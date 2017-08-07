@@ -53,7 +53,7 @@ NUMBER=$(curl -v -H "Authorization: token ${TOKEN}"\
     https://api.github.com/repos/${USER_REPO}/pulls \
     -d "${DATA}" | jq .number)
 # echo $NUMBER
-if [ $MILESTONE ];then
+if [ "$MILESTONE" ];then
     MILESTONE=$(curl -sS -H "Authorization: token ${TOKEN}"\
         https://api.github.com/repos/${USER_REPO}/milestones \
         | jq 'map(.number,.title)' | grep ${MILESTONE} -B1 | head -1 | sed -n 's/.*\([1-9]\)./\1/p')
