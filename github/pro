@@ -49,7 +49,7 @@ DATA=$(cat <<EOF
 EOF
 )
 # echo "${DATA}"
-NUMBER=$(curl -sS -H "Authorization: token ${TOKEN}"\
+NUMBER=$(curl -v -H "Authorization: token ${TOKEN}"\
     https://api.github.com/repos/${USER_REPO}/pulls \
     -d "${DATA}" | jq .number)
 # echo $NUMBER
