@@ -71,4 +71,4 @@ curl -sSX PATCH -H "Authorization: token ${TOKEN}"\
     https://api.github.com/repos/${USER_REPO}/issues/${NUMBER} \
     -d "${DATA}"
 
-echo "https://github.com/${USER_REPO}/pulls/${NUMBER}"
+echo "https://github.com/${USER_REPO}/pull/${NUMBER}"
