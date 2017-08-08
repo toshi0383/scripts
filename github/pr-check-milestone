@@ -1,0 +1,13 @@
+#!/bin/bash
+set -eo pipefail
+
+TOKEN=${GITHUB_ACCESS_TOKEN:?"GitHub Personal Access Token is required."}
+NUMBER=${1:?}
+USER_REPO=$(git remote -v | head -1 | sed -n 's/.*github.com.\(.*\)\.git.*/\1/p')
+MILESTONE=$(curl -H "Authorization: token ${TOKEN}" \
+    https://api.github.com/repos/${USER_REPO}/issues/${NUMBER} \
+    | jq .milestone.title)
+if [ "$MILESTONE" == "null" ];then
+    echo MileStone is not set.
+    exit 1
+fi
