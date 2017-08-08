@@ -5,7 +5,7 @@ TOKEN=${GITHUB_ACCESS_TOKEN:?"GitHub Personal Access Token is required."}
 BASE_NAME=$(basename $0)
 USAGE=$(cat <<EOF
 Usage:
-${BASE_NAME} [1] <base> [<milestone>] [<label>] [<title>] [<message>]
+${BASE_NAME} [1] <base> [<milestone>] [<label>]
 EOF
 )
 if [ "$1" == "1" ];then
@@ -13,31 +13,20 @@ if [ "$1" == "1" ];then
     BASE_BRANCH=${1:?${USAGE}}
     MILESTONE=${2:?}
     LABEL=${3:?}
-    TITLE=${4:?}
-    MESSAGE=${5:?}
 else
     BASE_BRANCH=${1:?${USAGE}}
     MILESTONE=${2}
     LABEL=${3}
-    TITLE=${4}
-    MESSAGE=${5}
 fi
 USER_REPO=$(git remote -v | head -1 | sed -n 's/.*github.com.\(.*\)\.git.*/\1/p')
 HEAD_BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
 echo Pushing current branch..
 git push origin $(git rev-parse --abbrev-ref HEAD)
-if [ ! "$TITLE" ];then
-    echo -n Enter Title:
-    read line
-    TITLE=$line
-fi
-if [ ! "$MESSAGE" ];then
-    echo Enter PR Body:
-    while read line
-    do
-        MESSAGE="${line}\n${MESSAGE}"
-    done
-fi
+MESSAGE_FILE=$(mktemp)
+git log -1 HEAD | tail +6 > $MESSAGE_FILE
+$GIT_EDITOR $MESSAGE_FILE
+TITLE=$(head -1 $MESSAGE_FILE)
+MESSAGE=$(tail +3 $MESSAGE_FILE)
 echo Creating a new pull-request..
 DATA=$(cat <<EOF
 {
@@ -54,20 +43,20 @@ NUMBER=$(curl -v -H "Authorization: token ${TOKEN}"\
     -d "${DATA}" | jq .number)
 # echo $NUMBER
 if [ "$MILESTONE" ];then
-    MILESTONE=$(curl -sS -H "Authorization: token ${TOKEN}"\
+    MILESTONE=$(curl -sS -H "Authorization: token ${TOKEN}" \
         https://api.github.com/repos/${USER_REPO}/milestones \
         | jq 'map(.number,.title)' | grep ${MILESTONE} -B1 | head -1 | sed -n 's/.*\([1-9]\)./\1/p')
 fi
 # echo $MILESTONE
 DATA=$(cat <<EOF
 { 
-    "milestone": "${MILESTONE}",
-    "labels": ["${LABEL}"],
+    "milestone": ${MILESTONE},
+    "labels": ["${LABEL}"]
 }
 EOF
 )
 # echo "${DATA}"
-curl -sSX PATCH -H "Authorization: token ${TOKEN}"\
+curl -vX PATCH -H "Authorization: token ${TOKEN}" \
     https://api.github.com/repos/${USER_REPO}/issues/${NUMBER} \
     -d "${DATA}"
 

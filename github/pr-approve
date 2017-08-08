@@ -1,7 +1,7 @@
 #!/bin/bash
 TOKEN=${GITHUB_ACCESS_TOKEN:?"GitHub Personal Access Token is required."}
 NUMBER=${1:?}
-USER_REPO=$(git remote -sS | head -1 | sed -n 's/.*github.com.\(.*\)\.git.*/\1/p')
+USER_REPO=$(git remote -v | head -1 | sed -n 's/.*github.com.\(.*\)\.git.*/\1/p')
 DATA=$(cat <<EOF
 {
     "event": "APPROVE",
@@ -9,6 +9,7 @@ DATA=$(cat <<EOF
 }
 EOF
 )
-curl -v -H "Authorization: token ${TOKEN}" \
+curl -sS -H "Authorization: token ${TOKEN}" \
     https://api.github.com/repos/${USER_REPO}/pulls/${NUMBER}/reviews \
-    -d "${DATA}"
+    -d "${DATA}" \
+    | jq .body
