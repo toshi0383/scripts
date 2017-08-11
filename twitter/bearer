@@ -8,8 +8,14 @@ CONSUMER_SECRET=$(echo -n $CONSUMER_SECRET | cmdshelf run net/url_encode)
 REQUEST=$(echo -n "${CONSUMER_KEY}:${CONSUMER_SECRET}" | base64)
 
 DATA=grant_type=client_credentials
-curl -sSL https://api.twitter.com/oauth2/token -d "${DATA}" \
+JSON=$(curl -sSL https://api.twitter.com/oauth2/token -d "${DATA}" \
     -H "Authorization:Basic ${REQUEST}" \
-    -H "Content-Type:application/x-www-form-urlencoded;charset=UTF-8" \
-    | jq .access_token
+    -H "Content-Type:application/x-www-form-urlencoded;charset=UTF-8")
+
+TYPE=$(echo "$JSON" | jq .token_type | sed 's/"//g')
+if [ $TYPE != "bearer" ];then
+    echo Response token_type was not bearer: $JSON
+    exit 1
+fi
+echo $JSON | jq .access_token
 
