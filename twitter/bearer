@@ -1,0 +1,15 @@
+#!/bin/bash
+# Get bearer token for TwitterAPI
+# SeeAlso: https://dev.twitter.com/oauth/application-only
+CONSUMER_KEY=${1}
+CONSUMER_SECRET=${2}
+CONSUMER_KEY=$(echo -n $CONSUMER_KEY | cmdshelf run net/url_encode)
+CONSUMER_SECRET=$(echo -n $CONSUMER_SECRET | cmdshelf run net/url_encode)
+REQUEST=$(echo -n "${CONSUMER_KEY}:${CONSUMER_SECRET}" | base64)
+
+DATA=grant_type=client_credentials
+curl -sSL https://api.twitter.com/oauth2/token -d "${DATA}" \
+    -H "Authorization:Basic ${REQUEST}" \
+    -H "Content-Type:application/x-www-form-urlencoded;charset=UTF-8" \
+    | jq .access_token
+
