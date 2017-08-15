@@ -5,7 +5,7 @@ TOKEN=${GITHUB_ACCESS_TOKEN:?"GitHub Personal Access Token is required."}
 BASE_NAME=$(basename $0)
 USAGE=$(cat <<EOF
 Usage:
-${BASE_NAME} [1] <base> [<milestone>] [<label>]
+${BASE_NAME} [1] <base> [<milestone>] [<label>] [<title>] [<message>]
 EOF
 )
 if [ "$1" == "1" ];then
@@ -13,20 +13,22 @@ if [ "$1" == "1" ];then
     BASE_BRANCH=${1:?${USAGE}}
     MILESTONE=${2:?}
     LABEL=${3:?}
+    TITLE=${4:?}
+    MESSAGE=${5:?}
 else
     BASE_BRANCH=${1:?${USAGE}}
     MILESTONE=${2}
     LABEL=${3}
+    MESSAGE_FILE=$(mktemp)
+    git log -1 HEAD | tail +6 > $MESSAGE_FILE
+    $GIT_EDITOR $MESSAGE_FILE
+    TITLE=$(head -1 $MESSAGE_FILE)
+    MESSAGE=$(tail +3 $MESSAGE_FILE)
 fi
 USER_REPO=$(git remote -v | head -1 | sed -n 's/.*github.com.\(.*\)\.git.*/\1/p')
 HEAD_BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
 echo Pushing current branch..
 git push origin $(git rev-parse --abbrev-ref HEAD)
-MESSAGE_FILE=$(mktemp)
-git log -1 HEAD | tail +6 > $MESSAGE_FILE
-$GIT_EDITOR $MESSAGE_FILE
-TITLE=$(head -1 $MESSAGE_FILE)
-MESSAGE=$(tail +3 $MESSAGE_FILE)
 echo Creating a new pull-request..
 DATA=$(cat <<EOF
 {
