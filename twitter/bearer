@@ -17,5 +17,5 @@ if [ $TYPE != "bearer" ];then
     echo Response token_type was not bearer: $JSON
     exit 1
 fi
-echo $JSON | jq .access_token
+echo -n $JSON | jq .access_token | sed 's/"//g'
 
