@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# name:
+#   extract-master-playlist
+#
+# description:
+#   Extracts master playlist and prints first playlist found.
+#
+URL=${1:?URL is required}
+BLOB_BASE=$(echo $URL | gsed -r 's?(.*)/.*?\1?g')
+TIMEOUT="--connect-timeout 2"
+DST="${BLOB_BASE}/$(curl -sSL ${TIMEOUT} "$URL" | grep -m 1 m3u8)"
+echo Extracted playlist URL: $DST
+curl -sSL ${TIMEOUT} "${DST}"
