@@ -1,11 +1,12 @@
 #!/bin/bash
 TOKEN=${GITHUB_ACCESS_TOKEN:?"GitHub Personal Access Token is required."}
 NUMBER=${1:?}
+MESSAGE=${2:-"👌"}
 USER_REPO=$(git remote -v | head -1 | sed -n 's/.*github.com.\(.*\)\.git.*/\1/p')
 DATA=$(cat <<EOF
 {
     "event": "APPROVE",
-    "body": "👌"
+    "body": "${MESSAGE}"
 }
 EOF
 )
