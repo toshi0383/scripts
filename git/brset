@@ -1,0 +1,3 @@
+#!/bin/bash
+b="${1:-$(git branch | gsed -rn 's/^\* (.*)/\1/p')}"
+git branch --set-upstream-to=origin/${b} ${b}
