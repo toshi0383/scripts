@@ -6,14 +6,17 @@
 # description:
 #   Extracts master playlist and prints first playlist found.
 #
+
 URL=${1:?URL is required}
 BLOB_BASE=$(echo $URL | gsed -r 's?(.*)/.*?\1?g')
 TIMEOUT="--connect-timeout 2"
 _PATH="$(curl -sSL ${TIMEOUT} "$URL" | grep -m 1 m3u8)"
+
 if [[ "$_PATH" =~ "~http" ]];then
     DST="${_PATH}"
 else
     DST="${BLOB_BASE}/${_PATH}"
 fi
+
 printf "\e[1;32mExtracted playlist URL:\e[0m $DST\n"
 curl -sSL ${TIMEOUT} "${DST}"
