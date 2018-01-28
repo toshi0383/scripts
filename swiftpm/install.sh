@@ -21,22 +21,32 @@
 #   Copyright © 2017 Toshihiro Suzuki All rights reserved.
 #
 
+# e.g. toshi0383/cmdshelf
 REPO_NAME=${1:?}
+
 VERSION=${2}
-# Separate an argument by '/'
+
+# Separate arguments by '/'
 OLD_IFS=$IFS; IFS=/; set -- $@; IFS=$OLD_IFS
+
 # e.g. toshi0383/cmdshelf => cmshelf
 APP_NAME=${2:?}
 
 TEMPORARY_FOLDER=/tmp/${APP_NAME}.dst
 DOWNLOAD_URLS=${TEMPORARY_FOLDER}/download.urls
-rm -rf $TEMPORARY_FOLDER
-mkdir -p $TEMPORARY_FOLDER 2> /dev/null
+
+# GitHub API Client ID to get rid of rate limit
 CLIENT_ID=6da3e83e315e51292de6
 CLIENT_SECRET=a748acd67f2e95d6098ff29243f415133b055226
 
+# Cleanup
+rm -rf $TEMPORARY_FOLDER
+mkdir -p $TEMPORARY_FOLDER 2> /dev/null
+
 # Get binary URL via github api
-curl -s "https://api.github.com/repos/${REPO_NAME}/releases?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}" | grep browser_download_url > $DOWNLOAD_URLS
+curl -s "https://api.github.com/repos/${REPO_NAME}/releases?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}" \
+    | grep browser_download_url \
+    > $DOWNLOAD_URLS
 
 # Grep given VERSION otherwise get latest
 if [ ! -z $VERSION ];then
@@ -55,5 +65,4 @@ curl -sLk $BINARY_URL -o ${ZIP_NAME}
 # Install
 unzip ${ZIP_NAME}
 chmod +x usr/local/bin/$APP_NAME
-install_name_tool -add_rpath "@executable_path/../Frameworks/${APP_NAME}" "usr/local/bin/${APP_NAME}"
 cp -Rf usr /
