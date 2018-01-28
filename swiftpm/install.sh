@@ -9,6 +9,7 @@
 #
 # parameters:
 #   1: "user/app" ... your github repository name. (e.g. toshi0383/cmdshelf)
+#   2: "version"  ... version string to install (e.g. 0.9.1)
 #
 # author:
 #   Toshihiro Suzuki
@@ -21,19 +22,29 @@
 #
 
 REPO_NAME=${1:?}
+VERSION=${2}
 # Separate an argument by '/'
 OLD_IFS=$IFS; IFS=/; set -- $@; IFS=$OLD_IFS
 # e.g. toshi0383/cmdshelf => cmshelf
 APP_NAME=${2:?}
 
 TEMPORARY_FOLDER=/tmp/${APP_NAME}.dst
+DOWNLOAD_URLS=${TEMPORARY_FOLDER}/download.urls
 rm -rf $TEMPORARY_FOLDER
 mkdir -p $TEMPORARY_FOLDER 2> /dev/null
 CLIENT_ID=6da3e83e315e51292de6
 CLIENT_SECRET=a748acd67f2e95d6098ff29243f415133b055226
 
 # Get binary URL via github api
-BINARY_URL=$(curl -s "https://api.github.com/repos/${REPO_NAME}/releases?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}" | grep browser_download_url | head -1 | awk -F": \"" '{print $2}' | sed 's/\"//')
+curl -s "https://api.github.com/repos/${REPO_NAME}/releases?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}" | grep browser_download_url > $DOWNLOAD_URLS
+
+# Grep given VERSION otherwise get latest
+if [ ! -z $VERSION ];then
+    BINARY_URL=$(grep $VERSION $DOWNLOAD_URLS | awk -F": \"" '{print $2}' | sed 's/\"//')
+else
+    BINARY_URL=$(head -1 $DOWNLOAD_URLS | awk -F": \"" '{print $2}' | sed 's/\"//')
+fi
+
 echo $BINARY_URL
 
 # Download zip
