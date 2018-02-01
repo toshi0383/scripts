@@ -1,0 +1,2 @@
+#!/bin/bash
+carthage checkout --no-use-binaries --use-ssh $@

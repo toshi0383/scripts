@@ -1,0 +1,96 @@
+#!/bin/bash
+#
+# name:
+#   update
+#
+# description:
+#   carthage管理のライブラリを更新する.
+#   引数としてアップデート対象のライブラリ名を渡してください. 複数受け付けます.
+#   引数なしで実行された場合、全てのライブラリを更新します.
+#   このファイル自体はどこにおいても構いませんが、
+#   通常carthageを使用するのと同様、プロジェクトのルートディレクトリから実行することを前提としています.
+#   例えば `scripts/carthage/update` に配置した場合、以下のように実行します.
+#   e.g. `./scripts/carthage/update APIKit Himotoki`
+#   tvOSでは以下のように実行してください.
+#   `PLATFORM=tvOS ./scripts/carthage/update APIKit Himotoki`
+#
+#   ライブラリのxcschemeのbuild設定のcodeCoverageEnabledがYESの場合はNOにしてbuildします
+#   refs: https://github.com/Carthage/Carthage/issues/2056#issuecomment-314433811
+#         https://qiita.com/appwatcher/items/fb93a386920cbeeec6aa
+#
+# author:
+#   鈴木 俊裕
+#
+# Copyright © 2017年 Toshihiro Suzuki All rights reserved.
+
+PLATFORM=${PLATFORM:-iOS}
+
+printBcsymbolmapFiles() {
+    tmp0=`mktemp`
+    tmp1=`mktemp`
+
+    ls Carthage/Build/${PLATFORM}/*map > $tmp0
+    while read l
+    do
+        echo $l $(sed -n 's/.*-module-name \([A-Za-z_]*\) .*/\1/p' $l | head -1) >> $tmp1
+    done < $tmp0
+    sort -k2 $tmp1
+
+    rm $tmp0 $tmp1
+}
+
+resolveModuleName() {
+    if [ "${1}" == "NSObject-Rx" ]; then
+        moduleName=NSObject_Rx
+    elif [ "${1}" == "SQLite.swift" ]; then
+        moduleName=SQLite
+    else
+        moduleName=${1}
+    fi
+    echo ${moduleName}
+}
+
+echo "古いbcsymbolmapを削除しています..."
+if [ $# -gt 0 ];then
+    for module in $@;do
+        module=`resolveModuleName ${module}`
+
+        target=$(printBcsymbolmapFiles | grep $module)
+        if [ 0 -eq $(echo $target | sed '/^$/d' | wc -l) ];then
+            printf "\033[0;33m[waring] $module のbcsymbolmapが見つかりませんでした。手動で見つけて削除してください。\033[0m\n"
+            continue
+        fi
+        printBcsymbolmapFiles | grep $module
+        printBcsymbolmapFiles | grep $module | awk '{print $1}' | xargs rm 2> /dev/null
+    done
+else
+    rm Carthage/Build/${PLATFORM}/*map
+fi
+
+carthage update --platform ${PLATFORM} --use-ssh --no-build --no-use-binaries $@
+
+echo "CodeCoverageの設定を無効にしています..."
+
+if grep -lR 'codeCoverageEnabled = "YES"' --include "*.xcscheme" Carthage/Checkouts
+then
+    printf "\033[0;33m上記のライブラリはcodeCoverageEnabled = "YES"になっていました。ライブラリ管理者に連絡するべきかもしれません。\033[0m\n"
+    echo "参考:"
+    echo "  https://github.com/Carthage/Carthage/issues/2056#issuecomment-314433811"
+    echo "  https://qiita.com/appwatcher/items/fb93a386920cbeeec6aa"
+fi
+grep -lR 'codeCoverageEnabled = "YES"' --include "*.xcscheme" --null Carthage/Checkouts | xargs -0 sed -i '' -e 's/codeCoverageEnabled = "YES"/codeCoverageEnabled = "NO"/g'
+
+if grep -lR 'codeCoverageEnabled = "YES"' --include "*.xcscheme" Carthage/Checkouts > /dev/null
+then
+    printf "\033[0;33mcodeCoverageEnabledを変更するのに失敗したようです。一度Carthage/Checkoutsや~/Library/Caches/org.carthage.CarthageKit/dependenciesを消してやり直してみてください。\033[0m\n"
+    exit 1
+fi
+
+if [ $# -gt 0 ];then
+    for module in $@;do
+        module=`resolveModuleName ${module}`
+        carthage build --platform ${PLATFORM} ${module}
+    done
+else
+    carthage build --platform ${PLATFORM}
+fi
