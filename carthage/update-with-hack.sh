@@ -9,7 +9,7 @@
 #   こうした方が余計なclone/fetchが走らないため高速です.
 #   新規追加がある時は使えません.
 #
-#   tvOS: PLATFORM=tvOS cmdshelf run carthage/update-with-hack.sh
+#   tvOS: PLATFORM=tvOS cmdshelf run carthage/update-with-hack.sh ${LIBRARY_NAME}
 #
 # author:
 #   鈴木 俊裕
