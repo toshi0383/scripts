@@ -19,7 +19,7 @@
 #
 # dependencies:
 #   cmdshelf
-#   cmdshelf-ios
+#   toshi0383/scripts
 #
 # copyright:
 #   Copyright © 2017年 Toshihiro Suzuki, Inc. All rights reserved.
