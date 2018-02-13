@@ -5,27 +5,55 @@ TOKEN=${GITHUB_ACCESS_TOKEN:?"GitHub Personal Access Token is required."}
 BASE_NAME=$(basename $0)
 USAGE=$(cat <<EOF
 Usage:
-${BASE_NAME} [1] <base> [<milestone>] [<label>] [<title>] [<message>]
+${BASE_NAME} <-b base branch> <-m milestone> <-l label> <-t title> <-M message>
 EOF
 )
-if [ "$1" == "1" ];then
-    shift
-    BASE_BRANCH=${1:?${USAGE}}
-    MILESTONE=${2:?}
-    LABEL=${3:?}
-    TITLE=${4:?}
-    MESSAGE=${5:?}
-else
-    BASE_BRANCH=${1:?${USAGE}}
-    MILESTONE=${2}
-    LABEL=${3}
+
+# Options
+
+while getopts b:l:m:t:M: OPT
+do
+    case $OPT in
+        b)  BASE_BRANCH=$OPTARG
+            ;;
+        l)  LABEL=$OPTARG
+            ;;
+        m)  MILESTONE=$OPTARG
+            ;;
+        t)  TITLE=$OPTARG
+            ;;
+        M)  MESSAGE=$OPTARG
+            ;;
+        *)
+            ;;
+    esac
+done
+
+# Parameters check
+
+BASE_BRANCH=${BASE_BRANCH:?${USAGE}}
+
+if [[ -z $TITLE && ! -z $MESSAGE ]];then
+    echo 'You must use -M with -t.'
+    exit 1
+fi
+
+# Get title and messages from user
+
+if [ -z $TITLE ];then
     MESSAGE_FILE=$(mktemp)
     git log -1 HEAD | tail +6 > $MESSAGE_FILE
     $GIT_EDITOR $MESSAGE_FILE
     TITLE=$(head -1 $MESSAGE_FILE)
     MESSAGE=$(tail +3 $MESSAGE_FILE)
 fi
+
+# Go!
+
 USER_REPO=$(git remote -v | head -1 | sed -n 's/.*github.com.\(.*\)\.git.*/\1/p')
+
+# POST a new pull-request
+
 HEAD_BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
 echo Pushing current branch..
 git push origin $(git rev-parse --abbrev-ref HEAD)
@@ -40,24 +68,45 @@ DATA=$(cat <<EOF
 EOF
 )
 # echo "${DATA}"
+
 NUMBER=$(curl -v -H "Authorization: token ${TOKEN}"\
     https://api.github.com/repos/${USER_REPO}/pulls \
     -d "${DATA}" | jq .number)
+
+# PATCH pull-request with label and milestone if needed
+
+if [[ -z $LABEL && -z $MILESTONE ]];then
+    echo "https://github.com/${USER_REPO}/pull/${NUMBER}"
+    exit 0
+fi
+
 # echo $NUMBER
-if [ "$MILESTONE" ];then
+if [ ! -z $MILESTONE ];then
     MILESTONE=$(curl -sS -H "Authorization: token ${TOKEN}" \
         https://api.github.com/repos/${USER_REPO}/milestones \
         | jq 'map(.number,.title)' | grep ${MILESTONE} -B1 | head -1 | sed -n 's/.*\([1-9]\)./\1/p')
+    MILESTONE='"milestone": "'${MILESTONE}'"'
+    if [ ! -z $LABEL ];then
+        MILESTONE=${MILESTONE},
+    fi
+else
+    MILESTONE=
+fi
+
+if [ ! -z $LABEL ];then
+    LABEL='"labels": ["'${LABEL}'"]'
+else
+    LABEL=
 fi
 # echo $MILESTONE
 DATA=$(cat <<EOF
-{ 
-    "milestone": ${MILESTONE},
-    "labels": ["${LABEL}"]
+{
+    ${MILESTONE}
+    ${LABEL}
 }
 EOF
 )
-# echo "${DATA}"
+echo "${DATA}"
 curl -vX PATCH -H "Authorization: token ${TOKEN}" \
     https://api.github.com/repos/${USER_REPO}/issues/${NUMBER} \
     -d "${DATA}"
