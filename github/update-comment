@@ -1,0 +1,55 @@
+#!/bin/bash
+#
+# name:
+#   update-comment
+#
+# description:
+#   Create or update latest comment of yours in specified pull-request or issue.
+#
+# author:
+#   Toshihiro Suzuki
+#
+set -eo pipefail
+
+# API prepre parameters
+
+TOKEN=${GITHUB_ACCESS_TOKEN:?}
+PULL_ID=${1:?}
+MESSAGE=${2:-$(cat /dev/stdin)}
+AUTH="Authorization: token ${TOKEN}"
+
+REPO=$(git remote -v \
+    | gsed -rn 's?.*git.*:??;s?.*https://github.com/??; s/(.*).git.*/\1/p' \
+    | head -1)
+
+# API endpoints
+
+USER_API=https://api.github.com/user
+COMMENTS_API=https://api.github.com/repos/${REPO}/issues/${PULL_ID}/comments
+COMMENTS_EDIT_API=https://api.github.com/repos/${REPO}/issues/comments
+
+# Go!
+
+ME=$(curl -s $USER_API -H "$AUTH" | jq .login)
+
+EXISTING=$(curl -s $COMMENTS_API \
+    -H "$AUTH" \
+    | jq "map({login: .user.login, id: .id})[] | select(.login == ${ME})|.id" | tail -1)
+
+DATA=$(cat << EOF
+{
+"body": "${MESSAGE}"
+}
+EOF
+)
+if [ -z $EXISTING ];then
+    # Create
+    curl -s $COMMENTS_API \
+        -H "$AUTH" \
+        --data "$DATA" > /dev/null
+else
+    # Update
+    curl -s -X PATCH $COMMENTS_EDIT_API/$EXISTING \
+        -H "$AUTH" \
+        --data "$DATA" > /dev/null
+fi
