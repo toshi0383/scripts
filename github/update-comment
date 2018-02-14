@@ -32,7 +32,7 @@ COMMENTS_EDIT_API=https://api.github.com/repos/${REPO}/issues/comments
 
 ME=$(curl -s $USER_API -H "$AUTH" | jq .login)
 
-EXISTING=$(curl -s $COMMENTS_API \
+EXISTING=$(curl -sS $COMMENTS_API \
     -H "$AUTH" \
     | jq "map({login: .user.login, id: .id})[] | select(.login == ${ME})|.id" | tail -1)
 
@@ -42,14 +42,15 @@ DATA=$(cat << EOF
 }
 EOF
 )
+
 if [ -z $EXISTING ];then
     # Create
-    curl -s $COMMENTS_API \
+    curl -sS $COMMENTS_API \
         -H "$AUTH" \
         --data "$DATA" > /dev/null
 else
     # Update
-    curl -s -X PATCH $COMMENTS_EDIT_API/$EXISTING \
+    curl -sS -X PATCH $COMMENTS_EDIT_API/$EXISTING \
         -H "$AUTH" \
         --data "$DATA" > /dev/null
 fi
