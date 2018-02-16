@@ -64,5 +64,16 @@ curl -sLk $BINARY_URL -o ${ZIP_NAME}
 
 # Install
 unzip ${ZIP_NAME}
+if [ -d usr/local/bin ];then
+    # backward compatibility
+    PREFIX=/
+    TARGETS=usr
+else
+    PREFIX=/usr/local/
+    TARGETS=bin share
+fi
 chmod +x usr/local/bin/$APP_NAME
-cp -Rf usr /
+for target in $TARGETS
+do
+    cp -Rf $target $PREFIX
+done
