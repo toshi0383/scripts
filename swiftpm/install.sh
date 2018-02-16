@@ -69,7 +69,7 @@ if [ -d usr/local/bin ];then
     PREFIX=/
     TARGETS=usr
 else
-    PREFIX=/usr/local/
+    PREFIX=${PREFIX:-/usr/local}/
     TARGETS=bin share
 fi
 chmod +x usr/local/bin/$APP_NAME
