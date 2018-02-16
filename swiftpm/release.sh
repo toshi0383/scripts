@@ -22,19 +22,22 @@
 #   Copyright © 2017 Toshihiro Suzuki All rights reserved.
 #
 
+# executable
 APP_NAME=${1:?}
 
 RELEASE_DIR=.build/release
 EXECUTABLE=${RELEASE_DIR}/${APP_NAME}
 DOC=docs/man
+BIN=bin
+
 install_name_tool -delete_rpath `xcode-select -p`/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx $EXECUTABLE
-mkdir -p usr/local/bin
-cp $EXECUTABLE usr/local/bin/
+mkdir -p $BIN
+cp $EXECUTABLE $BIN/
 
 # manual pages
 MAN_DIR=doc/man
-MAN_PREFIX=usr/local/share
-mkdir -p $MAN_PREFIX
-cp -R $MAN_DIR $MAN_PREFIX/
+SHARE=share
+mkdir -p $SHARE
+cp -R $MAN_DIR $SHARE/
 
-zip -r ${APP_NAME}.zip usr
+zip -r ${APP_NAME}.zip $BIN $SHARE
