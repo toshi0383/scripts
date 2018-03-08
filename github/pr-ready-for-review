@@ -1,0 +1,59 @@
+#!/bin/bash
+#
+# description:
+#   Print URLs of pull-requests which is awaiting for your review
+
+TOKEN=${GITHUB_ACCESS_TOKEN:?"GitHub Personal Access Token is required."}
+USER_REPO=$(git remote -v | head -1 | sed -n 's/.*github.com.\(.*\)\.git.*/\1/p')
+ME=${1:-toshi0383}
+
+cat > a.swift << EOF
+import Foundation
+
+let stdin = FileHandle.standardInput
+let stdout = FileHandle.standardOutput
+let stderr = FileHandle.standardError
+
+do {
+    let inputData = stdin.readDataToEndOfFile()
+
+    let jsonObject = try JSONSerialization.jsonObject(with: inputData,
+                                                      options: [])
+                                                      as! [[String: Any]]
+
+    let mapp = jsonObject.reduce([Int: String]()) { (ac: [Int: String], v: [String: Any]) in
+        var acc = ac
+        let n = v["number"] as! Int
+        acc[n] = "\(acc[n] ?? "")\(v["label"]! as! String)"
+        return acc
+    }
+    for (k, v) in mapp {
+        if !v.contains("WIP") {
+            print(k)
+        }
+    }
+} catch let error as NSError {
+    let message = "error: \(error.localizedDescription)\n"
+        stderr.write(message.data(using: .utf8)!)
+}
+EOF
+
+NUMBERS=$(curl -sS -H "Authorization: token ${TOKEN}" \
+    https://api.github.com/repos/${USER_REPO}/pulls?direction=desc \
+    | jq 'map({number, label: .labels[].name})' \
+    | xcrun swift a.swift)
+
+# echo $NUMBERS
+
+for NUMBER in $NUMBERS
+do
+    RESULT=$(curl -sS -H "Authorization: token ${TOKEN}" \
+        https://api.github.com/repos/${USER_REPO}/pulls/${NUMBER}/reviews \
+        | jq "map(select(.user.login == \"${ME}\"))" \
+        | jq 'map(.user.login + ":" + .state + ":" + .body |scan(".*APPROVED.*"))' \
+        | sed 's/\[//;s/\]//;/^$/d'
+    )
+    if [ $(echo $RESULT | wc -c) -eq 1 ];then
+        echo https://github.com/${USER_REPO}/pull/$NUMBER
+    fi
+done
