@@ -1,4 +1,5 @@
 #!/bin/bash
+# print given pull-request's approves
 TOKEN=${GITHUB_ACCESS_TOKEN:?"GitHub Personal Access Token is required."}
 NUMBER=${1:?}
 USER_REPO=$(git remote -v | head -1 | sed -n 's/.*github.com.\(.*\)\.git.*/\1/p')
