@@ -7,7 +7,9 @@ TOKEN=${GITHUB_ACCESS_TOKEN:?"GitHub Personal Access Token is required."}
 USER_REPO=$(git remote -v | head -1 | sed -n 's/.*github.com.\(.*\)\.git.*/\1/p')
 ME=${1:-toshi0383}
 
-cat > a.swift << EOF
+TMP_SWIFT=`mktemp`
+
+cat > $TMP_SWIFT << EOF
 import Foundation
 
 let stdin = FileHandle.standardInput
@@ -41,9 +43,9 @@ EOF
 NUMBERS=$(curl -sS -H "Authorization: token ${TOKEN}" \
     https://api.github.com/repos/${USER_REPO}/pulls?direction=desc \
     | jq 'map({number, label: .labels[].name})' \
-    | xcrun swift a.swift)
+    | xcrun swift $TMP_SWIFT)
 
-rm a.swift
+rm $TMP_SWIFT
 
 # echo $NUMBERS
 
