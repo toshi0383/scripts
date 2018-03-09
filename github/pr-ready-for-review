@@ -43,6 +43,8 @@ NUMBERS=$(curl -sS -H "Authorization: token ${TOKEN}" \
     | jq 'map({number, label: .labels[].name})' \
     | xcrun swift a.swift)
 
+rm a.swift
+
 # echo $NUMBERS
 
 for NUMBER in $NUMBERS
