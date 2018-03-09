@@ -41,7 +41,7 @@ EOF
 
 NUMBERS=$(curl -sS -H "Authorization: token ${TOKEN}" \
     https://api.github.com/repos/${USER_REPO}/pulls?direction=desc \
-    | jq 'map({number, labels})' \
+    | jq "map(select(.user.login != \"${ME}\") | {number, labels})" \
     | xcrun swift $TMP_SWIFT)
 
 rm $TMP_SWIFT
