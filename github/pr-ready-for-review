@@ -23,17 +23,16 @@ do {
                                                       options: [])
                                                       as! [[String: Any]]
 
-    let mapp = jsonObject.reduce([Int: String]()) { (ac: [Int: String], v: [String: Any]) in
-        var acc = ac
+    let mapp = jsonObject.reduce([Int]()) { (acc: [Int], v: [String: Any]) in
         let n = v["number"] as! Int
-        acc[n] = "\(acc[n] ?? "")\(v["label"]! as! String)"
-        return acc
-    }
-    for (k, v) in mapp {
-        if !v.contains("WIP") {
-            print(k)
+        if let labels = v["labels"] as? [[String: Any]],
+            labels.contains(where: { a in (a["name"] as! String) == "WIP" }) {
+            return acc
+        } else {
+            return acc + [n]
         }
     }
+    mapp.forEach { a in print(a) }
 } catch let error as NSError {
     let message = "error: \(error.localizedDescription)\n"
         stderr.write(message.data(using: .utf8)!)
@@ -42,7 +41,7 @@ EOF
 
 NUMBERS=$(curl -sS -H "Authorization: token ${TOKEN}" \
     https://api.github.com/repos/${USER_REPO}/pulls?direction=desc \
-    | jq 'map({number, label: .labels[].name})' \
+    | jq 'map({number, labels})' \
     | xcrun swift $TMP_SWIFT)
 
 rm $TMP_SWIFT
