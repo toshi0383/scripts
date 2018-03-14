@@ -5,7 +5,7 @@
 
 TOKEN=${GITHUB_ACCESS_TOKEN:?"GitHub Personal Access Token is required."}
 USER_REPO=$(git remote -v | head -1 | sed -n 's/.*github.com.\(.*\)\.git.*/\1/p')
-ME=${1:-toshi0383}
+ME=${1:-$(git config --get user.name)}
 
 TMP_SWIFT=`mktemp`
 
