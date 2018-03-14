@@ -23,13 +23,14 @@ do {
                                                       options: [])
                                                       as! [[String: Any]]
 
-    let mapp = jsonObject.reduce([Int]()) { (acc: [Int], v: [String: Any]) in
+    let mapp = jsonObject.reduce([String]()) { (acc: [String], v: [String: Any]) in
         let n = v["number"] as! Int
         if let labels = v["labels"] as? [[String: Any]],
             labels.contains(where: { a in (a["name"] as! String) == "WIP" }) {
             return acc
         } else {
-            return acc + [n]
+            let milestone = (v["milestone"] as? String) ?? ""
+            return acc + ["\(n):\"\(milestone)\""]
         }
     }
     mapp.forEach { a in print(a) }
@@ -39,17 +40,22 @@ do {
 }
 EOF
 
-NUMBERS=$(curl -sS -H "Authorization: token ${TOKEN}" \
+TMP_NUMBER_MILESTONES=`mktemp`
+curl -sS -H "Authorization: token ${TOKEN}" \
     https://api.github.com/repos/${USER_REPO}/pulls?direction=desc \
-    | jq "map(select(.user.login != \"${ME}\") | {number, labels})" \
-    | xcrun swift $TMP_SWIFT)
+    | jq "map(select(.user.login != \"${ME}\") | {number, labels, milestone: .milestone.title})" \
+    | xcrun swift $TMP_SWIFT \
+    > $TMP_NUMBER_MILESTONES
 
 rm $TMP_SWIFT
 
-# echo $NUMBERS
+# echo $NUMBER_MILESTONES
 
-for NUMBER in $NUMBERS
+while read it
 do
+    NUMBER=$(echo $it | awk -F: '{print $1}')
+    MILESTONE="$(echo $it | awk -F: '{print $2}')"
+
     RESULT=$(curl -sS -H "Authorization: token ${TOKEN}" \
         https://api.github.com/repos/${USER_REPO}/pulls/${NUMBER}/reviews \
         | jq "map(select(.user.login == \"${ME}\"))" \
@@ -57,6 +63,8 @@ do
         | sed 's/\[//;s/\]//;/^$/d'
     )
     if [ $(echo $RESULT | wc -c) -eq 1 ];then
-        echo https://github.com/${USER_REPO}/pull/$NUMBER
+        echo https://github.com/${USER_REPO}/pull/$NUMBER $MILESTONE
     fi
-done
+done < $TMP_NUMBER_MILESTONES
+
+rm $TMP_NUMBER_MILESTONES
