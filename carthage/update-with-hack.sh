@@ -4,6 +4,11 @@
 #   update-with-hack.sh
 #
 # description:
+#   Shrink Cartfile, perform update, then revert to original state,
+#   applying updated state to Cartfile.resolved.
+#   This way it's faster without unwanted clone and fetch.
+#   Do not use for installing a new library. (Only for updating)
+#
 #   Cartfileを対象のみに絞ってからcarthage/updateを実行したのち
 #   更新された情報をresolvedに反映してCartfileも戻します.
 #   こうした方が余計なclone/fetchが走らないため高速です.
@@ -12,7 +17,7 @@
 #   tvOS: PLATFORM=tvOS cmdshelf run carthage/update-with-hack.sh ${LIBRARY_NAME}
 #
 # author:
-#   鈴木 俊裕
+#   Toshihiro Suzuki
 #
 # since:
 #   2017-12-15
@@ -22,7 +27,7 @@
 #   toshi0383/scripts
 #
 # copyright:
-#   Copyright © 2017年 Toshihiro Suzuki, Inc. All rights reserved.
+#   Copyright © 2018年 Toshihiro Suzuki, Inc. All rights reserved.
 #
 
 if [ $# -eq 0 ];then

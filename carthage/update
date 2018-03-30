@@ -69,23 +69,6 @@ fi
 
 carthage update --platform ${PLATFORM} --use-ssh --no-build --no-use-binaries $@
 
-echo "CodeCoverageの設定を無効にしています..."
-
-if grep -lR 'codeCoverageEnabled = "YES"' --include "*.xcscheme" Carthage/Checkouts
-then
-    printf "\033[0;33m上記のライブラリはcodeCoverageEnabled = "YES"になっていました。ライブラリ管理者に連絡するべきかもしれません。\033[0m\n"
-    echo "参考:"
-    echo "  https://github.com/Carthage/Carthage/issues/2056#issuecomment-314433811"
-    echo "  https://qiita.com/appwatcher/items/fb93a386920cbeeec6aa"
-fi
-grep -lR 'codeCoverageEnabled = "YES"' --include "*.xcscheme" --null Carthage/Checkouts | xargs -0 sed -i '' -e 's/codeCoverageEnabled = "YES"/codeCoverageEnabled = "NO"/g'
-
-if grep -lR 'codeCoverageEnabled = "YES"' --include "*.xcscheme" Carthage/Checkouts > /dev/null
-then
-    printf "\033[0;33mcodeCoverageEnabledを変更するのに失敗したようです。一度Carthage/Checkoutsや~/Library/Caches/org.carthage.CarthageKit/dependenciesを消してやり直してみてください。\033[0m\n"
-    exit 1
-fi
-
 if [ $# -gt 0 ];then
     for module in $@;do
         module=`resolveModuleName ${module}`
