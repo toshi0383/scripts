@@ -68,6 +68,9 @@ Add or update PR/issue comment (like Danger).
 ## image/pixelSize.sh
 TBD
 
+## image/sips-assets.sh
+Generate given size of @1x,@2x,@3x variants using `sips` utility.
+
 # ios
 ## ios/resize-appicon.sh
 Resizing image for App Icon image assets.
