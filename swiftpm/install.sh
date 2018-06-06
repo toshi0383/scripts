@@ -76,5 +76,7 @@ else
 fi
 for target in $TARGETS
 do
-    cp -Rf $target $PREFIX
+    if [ -e $target ];then
+        cp -Rf $target $PREFIX
+    fi
 done
