@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+# name:
+#   swift-json-decode
+#
+# description:
+#   Useful when you want to decode JSON ([String: Any]) but found out that
+#   Swift's Decodable doesn't allow you to do that.
+#
+#   e.g. `cat Person.swift | swift-json-decode`
+#
+
+TMP=$(mktemp)
+cat > $TMP
+
+echo 'init(from json: JSON) {'
+gsed -rn 's/let (.*): (.*)\?/    self.\1 = json["\1"] as? \2/p' $TMP
+gsed -rn 's/let (.*): (.*[^?])$/    self.\1 = json["\1"] as! \2/p' $TMP
+echo '}'
+
+rm $TMP
