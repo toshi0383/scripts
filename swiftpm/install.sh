@@ -71,7 +71,7 @@ if [ -d usr/local/bin ];then
     chmod +x usr/local/bin/$APP_NAME
 else
     PREFIX=${PREFIX:-/usr/local}/
-    TARGETS="bin share lib"
+    TARGETS="bin share lib etc"
     chmod +x bin/$APP_NAME
 fi
 for target in $TARGETS

@@ -55,8 +55,15 @@ if [ -f $PACKAGE_RESOURCES ];then
     done < $PACKAGE_RESOURCES
 fi
 
+# bash_completion script
+ETC=$TMPDIR/etc
+BASH_COMPLETION_D=$ETC/bash_completion.d
+mkdir -p $BASH_COMPLETION_D
+BASH_COMPLETION_SCRIPT=Sources/Scripts/${APP_NAME}-completion.bash
+cp $BASH_COMPLETION_SCRIPT $BASH_COMPLETION_D
+
 cd $TMPDIR
-zip -r ${APP_NAME}.zip bin share lib
+zip -r ${APP_NAME}.zip bin share lib etc
 cd -
 
 cp ${TMPDIR}/${APP_NAME}.zip .
