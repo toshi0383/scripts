@@ -12,7 +12,7 @@ on run
         # display dialog projectFolder
         set sourceName to (get name of window 1)
         # display dialog sourceName
-        
+
         # Hoge.swift ⇄ HogeTests.swift のトグル変換
         set w1 to "Action.swift"
         set w2 to "Dispatcher.swift"
@@ -28,7 +28,7 @@ on run
             set destinationName to (my replaceThis:(w3 & ".*") inString:sourceName usingThis:w1)
         end if
         # display dialog destinationName
-        
+
         # ファイルパスを探して開く
         # display dialog command
         set command to "find " & quoted form of projectFolder & " -name " & quoted form of destinationName
