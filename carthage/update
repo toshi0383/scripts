@@ -64,16 +64,7 @@ if [ $# -gt 0 ];then
         printBcsymbolmapFiles | grep $module | awk '{print $1}' | xargs rm 2> /dev/null
     done
 else
-    rm Carthage/Build/${PLATFORM}/*map
+    rm -rf Carthage/*
 fi
 
-carthage update --platform ${PLATFORM} --use-ssh --no-build --no-use-binaries $@
-
-if [ $# -gt 0 ];then
-    for module in $@;do
-        module=`resolveModuleName ${module}`
-        carthage build --platform ${PLATFORM} ${module}
-    done
-else
-    carthage build --platform ${PLATFORM}
-fi
+carthage update --platform ${PLATFORM} --use-ssh --no-use-binaries $@
