@@ -47,7 +47,7 @@ RESOURCES=
 PACKAGE_RESOURCES=Package.resources
 
 if [ -f $PACKAGE_RESOURCES ];then
-    RESOURCES=${LIB}/${APP_NAME}/resources
+    RESOURCES=${SHARE}/${APP_NAME}/
     mkdir -p $RESOURCES
     while read dir
     do
