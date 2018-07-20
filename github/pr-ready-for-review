@@ -3,10 +3,10 @@
 # description:
 #   Print URLs of pull-requests which is awaiting for your review
 
-echo "========================================"
-echo "Deprecated: Use toshi0383/ghaw instead."
-echo "=> https://github.com/toshi0383/ghaw"
-echo "========================================"
+echo "========================================" 1>&2
+echo "Deprecated: Use toshi0383/ghaw instead." 1>&2
+echo "=> https://github.com/toshi0383/ghaw" 1>&2
+echo "========================================" 1>&2
 
 TOKEN=${GITHUB_ACCESS_TOKEN:?"GitHub Personal Access Token is required."}
 USER_REPO=$(git remote -v | head -1 | sed -n 's/.*github.com.\(.*\)\.git.*/\1/p')
