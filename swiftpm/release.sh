@@ -28,7 +28,6 @@ APP_NAME=${1:?}
 
 RELEASE_DIR=.build/release
 EXECUTABLE=${RELEASE_DIR}/${APP_NAME}
-DOC=docs/man
 BIN=$TMPDIR/bin
 
 install_name_tool -delete_rpath `xcode-select -p`/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/macosx $EXECUTABLE
@@ -37,7 +36,7 @@ cp $EXECUTABLE $BIN/
 
 # manual pages
 SHARE=$TMPDIR/share
-MAN_DIR=doc/man
+MAN_DIR=docs/man
 mkdir $SHARE
 cp -R $MAN_DIR $SHARE/
 
