@@ -9,10 +9,7 @@ on run
         set projectPath to path of active workspace document
         set projectFolder to characters 1 thru -((offset of "/" in (reverse of items of projectPath as string)) + 1) of projectPath as string
         set sourceName to (get name of window 1)
-        set command to "fd " & quoted form of sourceName & " " & quoted form of projectFolder
-        set destinationPath to do shell script command
-
-        do shell script "cmdshelf run toshi0383:xcode/xquick.sh " & destinationPath & " revert"
+        do shell script "hackscode xquick -r " & sourceName
     end tell
 end run
 
