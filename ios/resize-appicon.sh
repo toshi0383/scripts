@@ -10,7 +10,7 @@
 
 if ! which convert > /dev/null
 then
-    echo Please install imagemagick. e.g. `brew install imagemagick`
+    echo Please install imagemagick. e.g. \`brew install imagemagick\`
     exit 1
 fi
 
@@ -20,6 +20,10 @@ output_dir=$2
 if [ ! -f $original_file ]; then
 	echo 'File $original_file not found'
 	exit
+fi
+
+if [ ! -e "$output_dir" ];then
+    mkdir -p "$output_dir"
 fi
 
 #Array of all required sizes
