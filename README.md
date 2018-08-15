@@ -1,5 +1,10 @@
 # scripts
-Handy scripts for iOS/tvOS/Mac developers!
+Handy scripts for productive iOS/tvOS/Mac developers!
+
+Also checkout my cousins and brothers. I've converted some useful but complex ShellScripts to simple Swift CLI tools.
+
+- hackscode:      https://github.com/toshi0383/hackscode
+- GitHub at work: https://github.com/toshi0383/ghaw
 
 # Install
 ## Use cmdshelf
