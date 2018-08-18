@@ -1,26 +1,17 @@
 #!/bin/bash
-OS=${1:-'[a-z]'}
+#
+# warning: never tested. Use this on your own risk.
+#
 PLATFORMS="AppleTVOS iPhoneOS WatchOS"
-TMP=$(mktemp)
 
 for platform in $PLATFORMS
 do
-    :>$TMP
-    for xcode in `ls -d /Applications/Xcode*.app`
+    for origin in `ls -d /Applications/Xcode*.app/Contents/Developer/Platforms/${platform}.platform/DeviceSupport/`
     do
-        path=${xcode}/Contents/Developer/Platforms/${platform}.platform/DeviceSupport/
-        cd $path
-        ls -d $PWD/* >> $TMP
-    done
-    # echo "======= ${platform} ======="
-    # cat $TMP
-    for xcode in `ls -d /Applications/Xcode*.app`
-    do
-        while read dir
+        for dest in $(ls -d /Applications/Xcode*.app/Contents/Developer/Platforms/${platform}.platform/DeviceSupport/ | grep -v $x)
         do
-            path=${xcode}/Contents/Developer/Platforms/${platform}.platform/DeviceSupport/
-            cp -fR "$dir" $path/ 2> /dev/null
-        done < $TMP
+            rsync -r $origin/* $dest
+        done
     done
 done
 
