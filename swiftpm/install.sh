@@ -18,7 +18,7 @@
 #   2017-06-29
 #
 # copyright:
-#   Copyright © 2017 Toshihiro Suzuki All rights reserved.
+#   Copyright © 2018 Toshihiro Suzuki All rights reserved.
 #
 
 # e.g. toshi0383/cmdshelf
@@ -64,19 +64,18 @@ curl -sLk $BINARY_URL -o ${ZIP_NAME}
 
 # Install
 unzip ${ZIP_NAME}
-if [ -d usr/local/bin ];then
-    # backward compatibility
-    PREFIX=/
-    TARGETS=usr
-    chmod +x usr/local/bin/$APP_NAME
-else
-    PREFIX=${PREFIX:-/usr/local}/
-    TARGETS="bin share lib etc"
-    chmod +x bin/$APP_NAME
+PREFIX=${PREFIX:-/usr/local}
+TARGETS="bin share lib etc"
+chmod +x bin/$APP_NAME
+
+# overwrite mint installed executable
+if [ -h $PREFIX/bin/$APP_NAME ];then
+    rm $PREFIX/bin/$APP_NAME
 fi
+
 for target in $TARGETS
 do
     if [ -e $target ];then
-        cp -Rf $target $PREFIX
+        cp -Rf $target $PREFIX/
     fi
 done
