@@ -31,7 +31,7 @@ on run
 
         # ファイルパスを探して開く
         # display dialog command
-        set command to "fd " & quoted form of destinationName & " " & quoted form of projectFolder
+        set command to "fd " & quoted form of destinationName & " " & quoted form of projectFolder & "| head -1"
         set destinationPath to do shell script command
         if length of destinationPath < 1 then
             set destinationName to (my replaceThis:(w1 & ".*") inString:sourceName usingThis:w3)
