@@ -38,7 +38,10 @@ do
     if [ $(gdate -d "$d" +%s) -lt $(expr $(date +%s) + 43200) ]; then
         # Expires in less than 30 days
         echo $m : $d
+        STATUS=1
     fi
 
     rm a
 done
+
+exit $STATUS
