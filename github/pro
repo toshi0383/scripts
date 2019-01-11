@@ -50,7 +50,7 @@ fi
 
 # Go!
 
-USER_REPO=$(git remote -v | head -1 | sed -n 's/.*github.com.\(.*\)\.git.*/\1/p')
+USER_REPO=$(git remote -v | head -1 | sed 's,.*github.com[:/],,; s/ (fetch)$//; s/\.git$//')
 
 # POST a new pull-request
 
