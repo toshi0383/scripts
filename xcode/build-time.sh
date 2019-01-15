@@ -58,14 +58,14 @@ then
     exit 1
 fi
 
-EXTRACT_FILE_AND_DURATION='s?(^|.*")([0-9]+\.[0-9]+)ms\t.*/(.*\.swift).*?\3 \2,?p'
+EXTRACT_FILE_AND_DURATION='s?(^|.*")([0-9]+\.[0-9]+)ms\t.*/(.*\.swift)(.*)?\3 \2 \4,?p'
 SUMMARIZE_PER_FILE='{if(o!=$1){i+=1;n[i]=$1}sum[i]+=$2;o=$1;}END{for(key in sum){print n[key]": "sum[key]}}'
 
 cat $LOG_FILE \
     | gzcat 2> /dev/null \
     | mac2unix \
     | gsed -nr "$EXTRACT_FILE_AND_DURATION" \
-    | sort \
+    | sort -u \
     | awk "$SUMMARIZE_PER_FILE" \
     | sort -k 2 -nr
 
@@ -77,7 +77,7 @@ if [ ${PIPESTATUS[1]} -ne 0 ];then
     cat $LOG_FILE \
         | mac2unix \
         | gsed -nr "$EXTRACT_FILE_AND_DURATION" \
-        | sort \
+        | sort -u \
         | awk "$SUMMARIZE_PER_FILE" \
         | sort -k 2 -nr
 fi
