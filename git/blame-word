@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# - name:
+#     blame-word
+#
+# - description:
+#     Find files which contain specified keyword and show the latest log for each line.
+#
+#     e.g. cmdshelf run git/blame-word Hello Sources
+#
+# - parameters:
+#     1: a keyword to search
+#     2(optional): a directory to search
+#
+
+WORD=${1:?}
+DIRECTORY=${2:-\.}
+
+(git grep -l "$WORD" "$DIRECTORY" \
+    | sort \
+    | uniq \
+    | while read f; do git blame -- $f; done) \
+    | grep "$WORD" \
+    | awk '{print $1}' \
+    | sort \
+    | uniq \
+    | while read c; do git log -1 --pretty=format:"%C(yellow)%h %C(green)%cd %C(blue)%an%C(red)%d %C(reset)%s%n" $c; done
