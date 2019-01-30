@@ -19,7 +19,7 @@ DIRECTORY=${2:-\.}
 (git grep -l "$WORD" "$DIRECTORY" \
     | sort \
     | uniq \
-    | while read f; do git blame -- $f; done) \
+    | while read f; do git blame -- "$f"; done) \
     | grep "$WORD" \
     | awk '{print $1}' \
     | sort \
