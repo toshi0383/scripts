@@ -58,4 +58,4 @@ if [ ! -f "$LATEST_LOG_FILE" ];then
     exit 1
 fi
 
-$BUILD_TIME_SH "$LATEST_LOG_FILE"
+$BUILD_TIME_SH $@ "$LATEST_LOG_FILE"
