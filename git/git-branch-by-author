@@ -20,7 +20,9 @@ function print_name_match()
 
 function print_match()
 {
-  echo $1 : $2
+  b=$1
+  shift
+  echo $b : $@
 }
 
 git branch -r | grep -v -- '->' | grep origin | while read branch; do
