@@ -1,0 +1,23 @@
+#!/bin/bash
+set -eo pipefail
+
+TOKEN=${GITHUB_ACCESS_TOKEN:?"GitHub Personal Access Token is required."}
+BASE_NAME=$(basename $0)
+USAGE=$(cat <<EOF
+Usage:
+$BASE_NAME [<github-id>]
+EOF
+)
+
+if [ $# -eq 0 ];then
+    echo $USAGE
+    exit 1
+fi
+
+USER_REPO=${GITHUB_USER_REPO:-$(git remote -v | head -1 | sed 's,.*github.com[:/],,; s/ (fetch)$//; s/\.git$//')}
+
+for USER in $@;
+do
+    curl -vX PUT -H "Authorization: token ${TOKEN}" \
+        https://api.github.com/repos/${USER_REPO}/collaborators/${USER}
+done
