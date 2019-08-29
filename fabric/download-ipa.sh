@@ -12,7 +12,7 @@ if [ -e "$DOWNLOAD_PATH" ];then
     exit 1
 fi
 
-curl -L $(curl -s $(pbpaste | gsed -rn 's/.*=(https.*)/\1/p' | cmdshelf run net/url_decode) -o $PLIST; /usr/libexec/PlistBuddy -c 'Print :items:0:assets:0:url' $PLIST; rm $PLIST) -o "${DOWNLOAD_PATH}"
+curl -L $(curl -s $(pbpaste | gsed -rn 's/.*=(https.*)/\1/p' | perl -MURI::Escape -ne 'print uri_escape($_)') -o $PLIST; /usr/libexec/PlistBuddy -c 'Print :items:0:assets:0:url' $PLIST; rm $PLIST) -o "${DOWNLOAD_PATH}"
 if [ $? -eq 0 ];then
     say 'Downloaded an IPA file successfully.'
 else
